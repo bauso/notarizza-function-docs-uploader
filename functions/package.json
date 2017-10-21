@@ -1,0 +1,12 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "connect-multiparty": "^2.0.0",
+    "firebase-admin": "~5.4.0",
+    "firebase-functions": "^0.7.0",
+    "javascript-opentimestamps": "^0.2.3",
+    "express": "^4.14.1"
+  },
+  "private": true
+}
