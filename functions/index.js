@@ -15,14 +15,12 @@ app.post('/', multipartMiddleware, (req, res) => {
     const file = Buffer.from(req.files.doc.toString('utf8'));
     const detached = OpenTimestamps.DetachedTimestampFile.fromBytes(new OpenTimestamps.Ops.OpSHA256(), file);
     OpenTimestamps.stamp(detached).then(() => {
-
         // get the info
         const infoResult = OpenTimestamps.info(detached);
         console.log(infoResult);
 
         // save the ots file
-        const Context = require('./node_modules/javascript-opentimestamps/src/context.js');
-        const ctx = new Context.StreamSerialization();
+        const ctx = new OpenTimestamps.Context.StreamSerialization();
         detached.serialize(ctx);
         const buffer = new Buffer(ctx.getOutput());
         const otsFilename = req.files.doc.originalFilename + '.ots';
@@ -35,8 +33,8 @@ app.post('/', multipartMiddleware, (req, res) => {
     });
 });
 
-app.post('/verify', multipartMiddleware, (req, res) => {
 
+app.post('/verify', multipartMiddleware, (req, res) => {
     console.log(req.files);
     if (!req.files || !req.files.doc) {
         return res.send("You must upload a file!");
@@ -50,8 +48,6 @@ app.post('/verify', multipartMiddleware, (req, res) => {
         // return a timestamp if verified, undefined otherwise.
         console.log(verifyResult);
     });
-
-
 });
 
 exports.notarizeDoc = functions.https.onRequest(app);
