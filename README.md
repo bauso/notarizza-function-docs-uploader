@@ -22,11 +22,22 @@ Deploy
 ## Test
 
 **Stamp document**
-Upload file bitcoin.pdf and save the output file in bitcoin.ots:
+Upload file bitcoin.pdf and save the output file in bitcoin.pdf.ots:
 ```bash
-curl -o bitcoin.ots http://localhost:5000/notarizza/us-central1/notarizeDoc -F 'doc=@./bitcoin.pdf'
+curl -XPOST -o bitcoin.pdf.ots http://localhost:5000/notarizza/us-central1/notarizeDoc/stamp -F 'doc=@../test files/bitcoin.pdf'
 ```
 
 **Info**
-Upload file bitcoin.ots to verify that is being uploaded:
+Upload file bitcoin.ots.pdf to get the stamp info:
+```bash
+curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/info -F 'ots=@../test files/bitcoin.pdf.ots'
+```
+
+**Verify**
+Upload both the bitcoin.pdf and the stamped file bitcoin.pdf.ots to verify the timestamp when the file was stamped:
+```bash
+curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/verify -F 'ots=@../test files/bitcoin.pdf.ots' -F 'doc=@../test files/bitcoin.pdf'
+```
+
+
 

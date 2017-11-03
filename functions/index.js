@@ -7,12 +7,14 @@ var fs = require('fs');
 
 
 // Healthcheck
-app.get('/healthz', (req, res) => {
-    res.send("OK");
+app.get('/', (req, res) => {
+    res.send({
+        "status": "OK"
+    });
 });
 
 // Stamp document
-app.post('/', multipartMiddleware, (req, res) => {
+app.post('/stamp', multipartMiddleware, (req, res) => {
     console.log(req.files);
 
     if (!req.files || !req.files.doc) {
