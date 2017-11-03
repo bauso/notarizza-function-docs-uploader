@@ -75,7 +75,7 @@ app.post('/verify', multipartMiddleware, (req, res) => {
             const detachedOts = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
             OpenTimestamps.verify(detachedOts,detached).then(verifyResult => {
                 // return a timestamp if verified, undefined otherwise.
-                    res.send(verifyResult);
+                res.send(verifyResult.toString());
             }).catch(err => {
                 console.log(err);
                 res.sendStatus(404);
