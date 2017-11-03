@@ -17,3 +17,16 @@ To run and test this code locally do:
 ## Deploy
 Deploy
  1. Deploy your project using `firebase deploy --only functions:notarize-doc`
+
+
+## Test
+
+**Stamp document**
+Upload file bitcoin.pdf and save the output file in bitcoin.ots:
+```bash
+curl -o bitcoin.ots http://localhost:5000/notarizza/us-central1/notarizeDoc -F 'doc=@./bitcoin.pdf'
+```
+
+**Info**
+Upload file bitcoin.ots to verify that is being uploaded:
+
