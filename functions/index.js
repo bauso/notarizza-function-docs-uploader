@@ -6,6 +6,11 @@ const app = require('express')();
 var fs = require('fs');
 
 
+// Healthcheck
+app.get('/healthz', (req, res) => {
+    res.send("OK");
+});
+
 // Stamp document
 app.post('/', multipartMiddleware, (req, res) => {
     console.log(req.files);
