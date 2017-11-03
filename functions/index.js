@@ -3,6 +3,7 @@ const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const OpenTimestamps = require('javascript-opentimestamps');
 const app = require('express')();
+var fs = require('fs');
 
 
 // Stamp document
@@ -37,20 +38,20 @@ app.post('/', multipartMiddleware, (req, res) => {
 
 // Info
 app.post('/info', multipartMiddleware, (req, res) => {
-    console.log(req.files);
     if (!req.files || !req.files.ots) {
         return res.send("You must upload a timestamp file (ots)!");
     }
-    const fileOts = Buffer.from(req.files.ots.toString('utf8'));
-    const detached = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
-    const infoResult = OpenTimestamps.info(detached);
-    return res.send(infoResult);
+    const fileOtsPath = req.files.ots.path;
+    fs.readFile(fileOtsPath, (err, fileOts) => {
+        const detached = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
+        const infoResult = OpenTimestamps.info(detached);
+        return res.send(infoResult);
+    });
 });
 
 
 // Verify document
 app.post('/verify', multipartMiddleware, (req, res) => {
-    console.log(req.files);
     if (!req.files) {
         return res.send("You must upload a document (doc) and a timestamp file (ots)!");
     }
@@ -61,19 +62,24 @@ app.post('/verify', multipartMiddleware, (req, res) => {
         return res.send("You must upload a timestamp file (ots)!");
     }
 
-    const file = Buffer.from(req.files.doc.toString('utf8'));
-    const fileOts = Buffer.from(req.files.ots.toString('utf8'));
-
-    const detached = OpenTimestamps.DetachedTimestampFile.fromBytes(new OpenTimestamps.Ops.OpSHA256(), file);
-    const detachedOts = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
-    OpenTimestamps.verify(detachedOts, detached).then(verifyResult => {
-        // return a timestamp if verified, undefined otherwise.
-        console.log(verifyResult);
+    const filePath = req.files.doc.path;
+    const fileOtsPath = req.files.ots.path;
+    fs.readFile(filePath, (err, file) => {
+        fs.readFile(fileOtsPath, (err, fileOts) => {
+            const detached = OpenTimestamps.DetachedTimestampFile.fromBytes(new OpenTimestamps.Ops.OpSHA256(), file);
+            const detachedOts = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
+            OpenTimestamps.verify(detachedOts,detached).then(verifyResult => {
+                // return a timestamp if verified, undefined otherwise.
+                    res.send(verifyResult);
+            }).catch(err => {
+                console.log(err);
+                res.sendStatus(404);
+            });
+        });
     });
 });
 
 exports.notarizeDoc = functions.https.onRequest(app);
-
 
 function saveOts(otsFilename, buffer) {
     const fs = require('fs');
