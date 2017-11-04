@@ -1,11 +1,11 @@
-const functions = require('firebase-functions');
+//const functions = require('firebase-functions');
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const OpenTimestamps = require('javascript-opentimestamps');
 const app = require('express')();
 var fs = require('fs');
 
-
+app.listen(5000, () => console.log('Suca Firebase on localhost:5000'))
 // Healthcheck
 app.get('/', (req, res) => {
     res.send({
@@ -60,13 +60,13 @@ app.post('/info', multipartMiddleware, (req, res) => {
 // Verify document
 app.post('/verify', multipartMiddleware, (req, res) => {
     if (!req.files) {
-        return res.send("You must upload a document (doc) and a timestamp file (ots)!");
+        return res.status(400).json({message: "Verification failed!","error":"You must upload a document (doc) and a timestamp file (ots)!"});
     }
     if (!req.files.doc) {
-        return res.send("You must upload a document (doc)!");
+        return res.status(400).json({message: "Verification failed!","error":"You must upload a document (doc)!"});
     }
     if (!req.files.ots) {
-        return res.send("You must upload a timestamp file (ots)!");
+        return res.status(400).json({message: "Verification failed!","error":"You must upload a timestamp file (ots)!"});
     }
 
     const filePath = req.files.doc.path;
@@ -76,17 +76,16 @@ app.post('/verify', multipartMiddleware, (req, res) => {
             const detached = OpenTimestamps.DetachedTimestampFile.fromBytes(new OpenTimestamps.Ops.OpSHA256(), file);
             const detachedOts = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
             OpenTimestamps.verify(detachedOts,detached).then(verifyResult => {
-                // return a timestamp if verified, undefined otherwise.
-                res.send(verifyResult.toString());
+                // return a timestamp (ISO 8601) if verified, undefined otherwise.
+                res.status(200).json({message: "ots verified!", timestamp:new Date(verifyResult*1000)});
             }).catch(err => {
-                console.log(err);
-                res.sendStatus(404);
+                res.status(404).json({message: "Verification failed!","error":err});
             });
         });
     });
 });
 
-exports.notarizeDoc = functions.https.onRequest(app);
+//exports.notarizeDoc = functions.https.onRequest(app);
 
 function saveOts(otsFilename, buffer) {
     const fs = require('fs');
