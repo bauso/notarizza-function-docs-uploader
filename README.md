@@ -20,24 +20,30 @@ Deploy
 
 
 ## Test
+You can call the following curl calls from the root of the project.
 
 **Stamp document**
 Upload file bitcoin.pdf and save the output file in bitcoin.pdf.ots:
 ```bash
-curl -XPOST -o bitcoin.pdf.ots http://localhost:5000/notarizza/us-central1/notarizeDoc/stamp -F 'doc=@../test files/bitcoin.pdf'
+curl -XPOST -o bitcoin.pdf.ots http://localhost:5000/notarizza/us-central1/notarizeDoc/stamp -F 'doc=@./test files/bitcoin.pdf'
 ```
 
 **Info**
 Upload file bitcoin.ots.pdf to get the stamp info:
 ```bash
-curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/info -F 'ots=@../test files/bitcoin.pdf.ots'
+curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/info -F 'ots=@./test files/bitcoin.pdf.ots'
 ```
 
 **Verify**
 Upload both the bitcoin.pdf and the stamped file bitcoin.pdf.ots to verify the timestamp when the file was stamped:
 ```bash
-curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/verify -F 'ots=@../test files/bitcoin.pdf.ots' -F 'doc=@../test files/bitcoin.pdf'
+curl -XPOST http://localhost:5000/notarizza/us-central1/notarizeDoc/verify -F 'ots=@../test files/bitcoin.pdf.ots' -F 'doc=@./test files/bitcoin.pdf'
 ```
 
+**Upgrade**
+Upload both the bitcoin.pdf and the stamped file bitcoin.pdf.ots to verify the timestamp when the file was stamped:
+```bash
+curl -XPOST -o bitcoin.pdf.ots http://localhost:5000/notarizza/us-central1/notarizeDoc/upgrade -F 'ots=@./test files/bitcoin.pdf.ots'
+```
 
 
