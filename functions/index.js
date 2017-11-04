@@ -85,6 +85,43 @@ app.post('/verify', multipartMiddleware, (req, res) => {
     });
 });
 
+
+// Upgrade
+app.post('/upgrade', multipartMiddleware, (req, res) => {
+    if (!req.files || !req.files.ots) {
+        return res.send("You must upload a timestamp file (ots)!");
+    }
+    const fileOtsPath = req.files.ots.path;
+    fs.readFile(fileOtsPath, (err, fileOts) => {
+        const detached = OpenTimestamps.DetachedTimestampFile.deserialize(fileOts);
+        OpenTimestamps.upgrade(detached).then((changed) => {
+            if (changed) {
+                console.log('Timestamp upgraded');
+
+                // save the ots file
+                const ctx = new OpenTimestamps.Context.StreamSerialization();
+                detached.serialize(ctx);
+                const buffer = new Buffer(ctx.getOutput());
+
+                // return the info
+                res.set({'Content-Type': 'application/octet-stream'});
+                res.write(buffer,'binary');
+                res.end(null, 'binary');
+
+            } else {
+                console.log('Timestamp not upgraded');
+                res.status(404).json({message: "Timestamp not upgraded!"});
+            }
+        }).catch(err => {
+            console.log(err);
+            res.status(404).json({message: "Timestamp not upgraded!","error":err});
+        });
+
+
+    });
+});
+
+
 exports.notarizeDoc = functions.https.onRequest(app);
 
 function saveOts(otsFilename, buffer) {
